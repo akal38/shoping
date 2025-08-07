@@ -14,6 +14,21 @@
     h1 {
       color: #6a1b9a;
     }
+    #monthButtons {
+      margin-bottom: 20px;
+    }
+    .month-btn {
+      margin: 2px;
+      padding: 6px 12px;
+      background-color: #6a1b9a;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .month-btn:hover {
+      background-color: #4a148c;
+    }
     table {
       width: 100%;
       max-width: 600px;
@@ -104,12 +119,22 @@
 </head>
 <body>
   <h1>🏆 المتصدرون هذا الشهر</h1>
+
+  <!-- ✅ أزرار الشهور -->
+  <div id="monthButtons"></div>
+
   <table>
     <thead>
       <tr>
         <th>الترتيب</th>
-        <th>الاسم</th>
+        <th>
+          الاسم
+          <button onclick="sortByName()" style="font-size: 12px; margin-right: 6px; padding: 3px 6px; background-color: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            🔤
+          </button>
+        </th>
         <th>عدد النقاط</th>
+        <th>حذف</th>
       </tr>
     </thead>
     <tbody id="leaderboard">
@@ -127,29 +152,36 @@
   </div>
 
   <script>
+    const monthButtonsDiv = document.getElementById('monthButtons');
+    const leaderboard = document.getElementById('leaderboard');
+    const allUsersData = JSON.parse(localStorage.getItem('user_data')) || {};
+    const monthNames = ['جانفي', 'فيفري', 'مارس', 'أفريل', 'ماي', 'جوان', 'جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
-    const pointsKey = `user_points_${year}_${month}`;
+    const currentKey = `user_points_${year}_${month}`;
 
-    const allPoints = JSON.parse(localStorage.getItem(pointsKey)) || {};
-    const allUsersData = JSON.parse(localStorage.getItem('user_data')) || {};
+    loadLeaderboard(currentKey);
 
-    const users = Object.keys(allPoints).map(name => {
-      return { name: name, points: allPoints[name] };
-    });
+    function loadLeaderboard(pointsKey) {
+      const allPoints = JSON.parse(localStorage.getItem(pointsKey)) || {};
+      const users = Object.keys(allPoints).map(name => {
+        return { name: name, points: allPoints[name] };
+      });
 
-    users.sort((a, b) => b.points - a.points);
+      users.sort((a, b) => b.points - a.points);
+      leaderboard.innerHTML = '';
 
-    const leaderboard = document.getElementById('leaderboard');
+      if (users.length === 0) {
+        leaderboard.innerHTML = `
+          <tr>
+            <td colspan="4">📭 لا توجد بيانات بعد لهذا الشهر</td>
+          </tr>
+        `;
+        return;
+      }
 
-    if (users.length === 0) {
-      leaderboard.innerHTML = `
-        <tr>
-          <td colspan="3">📭 لا توجد بيانات بعد لهذا الشهر</td>
-        </tr>
-      `;
-    } else {
       users.forEach((user, index) => {
         const row = document.createElement('tr');
         if (index === 0) row.classList.add('winner');
@@ -159,6 +191,9 @@
           <td>${index + 1}</td>
           <td><span class="username" data-name="${safeName}">${safeName}</span></td>
           <td>${user.points}</td>
+          <td>
+            <button onclick="deleteUser('${safeName}', '${pointsKey}')" style="background:red; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">🗑️</button>
+          </td>
         `;
         leaderboard.appendChild(row);
       });
@@ -166,14 +201,30 @@
       document.querySelectorAll('.username').forEach(el => {
         el.addEventListener('click', (e) => {
           const name = e.currentTarget.getAttribute('data-name');
-          showUserData(name);
+          showUserData(name, pointsKey);
         });
       });
     }
 
-    function showUserData(name) {
+    function createMonthButtons() {
+      const thisYear = new Date().getFullYear();
+      monthNames.forEach((name, i) => {
+        const monthNumber = String(i + 1).padStart(2, '0');
+        const key = `user_points_${thisYear}_${monthNumber}`;
+        const btn = document.createElement('button');
+        btn.className = 'month-btn';
+        btn.innerText = name;
+        btn.onclick = () => loadLeaderboard(key);
+        monthButtonsDiv.appendChild(btn);
+      });
+    }
+
+    createMonthButtons();
+
+    function showUserData(name, pointsKey) {
       const modal = document.getElementById('userModal');
       const body = document.getElementById('modalBody');
+      const allPoints = JSON.parse(localStorage.getItem(pointsKey)) || {};
       const info = allUsersData[name];
       if (!info) {
         body.innerHTML = `<p class="no-data">⚠️ لا توجد بيانات اتصال لهذا المستخدم.</p>`;
@@ -207,6 +258,29 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+    }
+
+    function deleteUser(name, pointsKey) {
+      if (confirm(`هل أنت متأكد أنك تريد حذف "${name}"؟`)) {
+        const allPoints = JSON.parse(localStorage.getItem(pointsKey)) || {};
+        delete allPoints[name];
+        localStorage.setItem(pointsKey, JSON.stringify(allPoints));
+        loadLeaderboard(pointsKey);
+      }
+    }
+
+    function sortByName() {
+      const rows = Array.from(leaderboard.querySelectorAll('tr'));
+      const sortedRows = rows.sort((a, b) => {
+        const nameA = a.querySelector('.username')?.textContent || '';
+        const nameB = b.querySelector('.username')?.textContent || '';
+        return nameA.localeCompare(nameB, 'ar');
+      });
+      leaderboard.innerHTML = '';
+      sortedRows.forEach((row, i) => {
+        if (i === 0) row.classList.add('winner');
+        leaderboard.appendChild(row);
+      });
     }
   </script>
 </body>

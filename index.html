@@ -24,6 +24,7 @@
       max-width: 600px;
       text-align: center;
       border: 3px solid #1e76e9;
+      position: relative; /* لتمكين وضع الأيقونة في الأعلى */
     }
 
     .store-image {
@@ -88,6 +89,9 @@
 <body>
 
   <div class="container">
+    <!-- أيقونة الإدارة -->
+    <span style="position:absolute; top:15px; left:15px; font-size:1.8em; cursor:pointer;" onclick="goToAdmin()">⚙️</span>
+
     <!-- صورة المتجر -->
     <img id="storeProfilePic" src="photo_2025-08-05_22-10-51.jpg" alt="شعار المتجر" class="store-image">
 
@@ -103,10 +107,9 @@
     </p>
 
     <button class="btn" onclick="goToShop()">ادخل المتجر 🛒</button>
-    <button class="btn" onclick="goToAdmin()">لوحة الإدارة ⚙️</button>
 
     <footer>
-      &copy; 2025 جميع الحقوق محفوظة - Shop & Win
+      &copy; created by akalabdelhakamine38@gmail.com
     </footer>
   </div>
 
@@ -127,7 +130,6 @@
     }
   }
 </script>
-
 
   <!-- سكربت تحميل صورة البروفايل -->
   <script>
