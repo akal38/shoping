@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>Shop & Win 🛍️</title>
+  <title>PINo     shop & win 🛍️</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -24,7 +24,7 @@
       max-width: 600px;
       text-align: center;
       border: 3px solid #1e76e9;
-      position: relative; /* لتمكين وضع الأيقونة في الأعلى */
+      position: relative;
     }
 
     .store-image {
@@ -96,13 +96,13 @@
     <img id="storeProfilePic" src="photo_2025-08-05_22-10-51.jpg" alt="شعار المتجر" class="store-image">
 
     <!-- اسم المتجر -->
-    <div class="store-name">Shop & Win - أفضل مكان للتسوق</div>
+    <div class="store-name">PINo - أفضل مكان للتسوق</div>
 
-    <h1>🎉 مرحبًا بك في Shop & Win</h1>
-    
+    <h1>🎉 مرحبًا بك في PINo</h1>
+     <h1>🎁  Shop & Win 🎁</h1>
     <p>
       تسوّق من مجموعة متنوعة من المنتجات من مختلف البائعين.
-      مع كل عملية شراء، تربح نقاطًا حسب سعر السلعة (نقطة لكل 100 دج).
+      مع كل عملية شراء، تربح نقاطًا حسب سعر السلعة (نقطة لكل 1000 دج).
       وفي نهاية كل شهر، الشخص الذي يجمع أكبر عدد من النقاط يفوز بجائزة رائعة 🎁!
     </p>
 
@@ -115,16 +115,16 @@
 
   <script>
   function goToShop() {
+    // تخزين حدث الدخول في Firestore
+    saveVisitLog("shop");
     window.location.href = "shop.html";
   }
 
   function goToAdmin() {
-    // طلب كلمة المرور من المستخدم
     const password = prompt("🚨 أدخل كلمة المرور للوصول إلى لوحة الإدارة:");
-
-    // تحقق من كلمة المرور الصحيحة (يمكنك تغييرها هنا)
     if (password === "algeria") {
-      window.location.href = "admin.html"; // التوجيه إذا كانت صحيحة
+      saveVisitLog("admin");
+      window.location.href = "admin.html";
     } else if (password !== null) {
       alert("❌ كلمة المرور غير صحيحة!");
     }
@@ -146,6 +146,37 @@
         console.warn('خطأ في قراءة صورة البروفايل من localStorage:', err);
       }
     });
+  </script>
+
+  <!-- ✅ إضافة Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "ضع_هنا_apiKey_من_Firebase",
+      authDomain: "ضع_هنا_authDomain",
+      projectId: "ضع_هنا_projectId",
+      storageBucket: "ضع_هنا_storageBucket",
+      messagingSenderId: "ضع_هنا_messagingSenderId",
+      appId: "ضع_هنا_appId"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // دالة حفظ أي زيارة أو عملية في Firestore
+    window.saveVisitLog = async function (type) {
+      try {
+        await addDoc(collection(db, "visits"), {
+          page: type,
+          timestamp: serverTimestamp()
+        });
+        console.log("✅ تم حفظ الزيارة في Firestore:", type);
+      } catch (e) {
+        console.error("❌ خطأ في الحفظ:", e);
+      }
+    }
   </script>
 
 </body>

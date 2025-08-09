@@ -5,142 +5,45 @@
   <title>لوحة المتصدرين 🏆</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: 'Cairo', sans-serif;
-      background: linear-gradient(to bottom, #fdfcfb, #e2d1c3);
-      padding: 20px;
-      text-align: center;
-    }
-    h1 {
-      color: #6a1b9a;
-    }
-    #monthButtons {
-      margin-bottom: 20px;
-    }
-    .month-btn {
-      margin: 2px;
-      padding: 6px 12px;
-      background-color: #6a1b9a;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .month-btn:hover {
-      background-color: #4a148c;
-    }
-    table {
-      width: 100%;
-      max-width: 600px;
-      margin: 20px auto;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 15px;
-      border-bottom: 1px solid #eee;
-    }
-    th {
-      background-color: #6a1b9a;
-      color: white;
-    }
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    .winner {
-      background-color: #ffeb3b;
-      font-weight: bold;
-    }
-    .back-btn {
-      margin-top: 30px;
-      background-color: #6a1b9a;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .back-btn:hover {
-      background-color: #4a148c;
-    }
-    .username {
-      color: #1a73e8;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.4);
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    .modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 420px;
-      width: 100%;
-      text-align: right;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    }
-    .modal-content h3 {
-      margin-top: 0;
-      color: #6a1b9a;
-    }
-    .modal-close {
-      margin-top: 15px;
-      display: inline-block;
-      background-color: #6a1b9a;
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-    }
-    .no-data {
-      padding: 20px;
-      color: #777;
-    }
+    body {font-family: 'Cairo', sans-serif; background: linear-gradient(to bottom, #fdfcfb, #e2d1c3); padding: 20px; text-align: center;}
+    h1 {color: #6a1b9a;}
+    #monthButtons {margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px;}
+    .month-btn {margin: 2px; padding: 6px 12px; background-color: #6a1b9a; color: white; border: none; border-radius: 5px; cursor: pointer;}
+    .month-btn.active {background-color: #4a148c; font-weight: bold; box-shadow: 0 0 5px rgba(0,0,0,0.3);}
+    .month-btn:hover {background-color: #4a148c;}
+    table {width: 100%; max-width: 600px; margin: 20px auto; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
+    th, td {padding: 15px; border-bottom: 1px solid #eee;}
+    th {background-color: #6a1b9a; color: white;}
+    tr:nth-child(even) {background-color: #f9f9f9;}
+    .winner {background-color: #ffeb3b; font-weight: bold;}
+    .back-btn {margin-top: 30px; background-color: #6a1b9a; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; transition: 0.3s;}
+    .back-btn:hover {background-color: #4a148c;}
+    .username {color: #1a73e8; cursor: pointer; text-decoration: underline;}
+    .modal {display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;}
+    .modal-content {background: white; padding: 20px; border-radius: 10px; max-width: 420px; width: 100%; text-align: right; box-shadow: 0 4px 20px rgba(0,0,0,0.2);}
+    .modal-content h3 {margin-top: 0; color: #6a1b9a;}
+    .modal-close {margin-top: 15px; display: inline-block; background-color: #6a1b9a; color: #fff; padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer;}
+    .no-data {padding: 20px; color: #777;}
   </style>
 </head>
 <body>
   <h1>🏆 المتصدرون هذا الشهر</h1>
-
-  <!-- ✅ أزرار الشهور -->
   <div id="monthButtons"></div>
 
   <table>
     <thead>
       <tr>
         <th>الترتيب</th>
-        <th>
-          الاسم
-          <button onclick="sortByName()" style="font-size: 12px; margin-right: 6px; padding: 3px 6px; background-color: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            🔤
-          </button>
+        <th>الاسم
+          <button onclick="sortByName()" style="font-size: 12px; margin-right: 6px; padding: 3px 6px; background-color: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer;">🔤</button>
         </th>
         <th>عدد النقاط</th>
         <th>حذف</th>
       </tr>
     </thead>
-    <tbody id="leaderboard">
-      <!-- سيتم إدراج المتصدرين هنا -->
-    </tbody>
+    <tbody id="leaderboard"></tbody>
   </table>
+
   <button class="back-btn" onclick="window.location.href='admin.html'">العودة لصفحة الإدارة ⚙️</button>
 
   <div id="userModal" class="modal" onclick="closeModal(event)">
@@ -151,7 +54,24 @@
     </div>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+
   <script>
+    // 🔹 تهيئة Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHbyGbGx7P5mu6h0PecHGInvfX63Wvzqw",
+      authDomain: "my-shop-96a73.firebaseapp.com",
+      projectId: "my-shop-96a73",
+      storageBucket: "my-shop-96a73.appspot.com",
+      messagingSenderId: "242872774955",
+      appId: "1:242872774955:web:1b281b329bc189ea3e556e",
+      measurementId: "G-NP5FHDTHEL"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     const monthButtonsDiv = document.getElementById('monthButtons');
     const leaderboard = document.getElementById('leaderboard');
     const allUsersData = JSON.parse(localStorage.getItem('user_data')) || {};
@@ -162,44 +82,72 @@
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const currentKey = `user_points_${year}_${month}`;
 
-    loadLeaderboard(currentKey);
+    // تحميل لوحة المتصدرين عند بدء التشغيل
+    initLeaderboard();
 
-    function loadLeaderboard(pointsKey) {
-      const allPoints = JSON.parse(localStorage.getItem(pointsKey)) || {};
-      const users = Object.keys(allPoints).map(name => {
-        return { name: name, points: allPoints[name] };
+    async function initLeaderboard() {
+      await checkAndCreateNewMonth();
+      createMonthButtons();
+      loadLeaderboard(currentKey);
+    }
+
+    // التحقق من وجود شهر جديد وإنشائه إذا لزم الأمر
+    async function checkAndCreateNewMonth() {
+      const lastAccessed = localStorage.getItem('last_accessed_month');
+      if (lastAccessed !== currentKey) {
+        localStorage.setItem('last_accessed_month', currentKey);
+        // يمكنك هنا إضافة أي إجراءات إضافية عند بداية شهر جديد
+        console.log(`شهر جديد: ${currentKey}`);
+      }
+    }
+
+    async function loadLeaderboard(pointsKey) {
+      // تحديث الزر النشط
+      document.querySelectorAll('.month-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.key === pointsKey) btn.classList.add('active');
       });
 
-      users.sort((a, b) => b.points - a.points);
-      leaderboard.innerHTML = '';
+      let allPoints = {};
+      try {
+        const snapshot = await db.collection(pointsKey).get();
+        snapshot.forEach(doc => {
+          allPoints[doc.id] = doc.data().points;
+        });
+      } catch (e) {
+        console.warn("⚠️ خطأ في جلب البيانات من Firestore:", e);
+      }
 
+      if (Object.keys(allPoints).length === 0) {
+        allPoints = JSON.parse(localStorage.getItem(pointsKey)) || {};
+      } else {
+        localStorage.setItem(pointsKey, JSON.stringify(allPoints));
+      }
+
+      const users = Object.keys(allPoints).map(name => ({ name, points: allPoints[name] }));
+      users.sort((a, b) => b.points - a.points);
+
+      leaderboard.innerHTML = '';
       if (users.length === 0) {
-        leaderboard.innerHTML = `
-          <tr>
-            <td colspan="4">📭 لا توجد بيانات بعد لهذا الشهر</td>
-          </tr>
-        `;
+        leaderboard.innerHTML = `<tr><td colspan="4">📭 لا توجد بيانات بعد لهذا الشهر</td></tr>`;
         return;
       }
 
       users.forEach((user, index) => {
+        const safeName = escapeHtml(user.name);
         const row = document.createElement('tr');
         if (index === 0) row.classList.add('winner');
-
-        const safeName = escapeHtml(user.name);
         row.innerHTML = `
           <td>${index + 1}</td>
           <td><span class="username" data-name="${safeName}">${safeName}</span></td>
           <td>${user.points}</td>
-          <td>
-            <button onclick="deleteUser('${safeName}', '${pointsKey}')" style="background:red; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">🗑️</button>
-          </td>
+          <td><button onclick="deleteUser('${safeName}', '${pointsKey}')" style="background:red; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">🗑️</button></td>
         `;
         leaderboard.appendChild(row);
       });
 
       document.querySelectorAll('.username').forEach(el => {
-        el.addEventListener('click', (e) => {
+        el.addEventListener('click', e => {
           const name = e.currentTarget.getAttribute('data-name');
           showUserData(name, pointsKey);
         });
@@ -207,19 +155,32 @@
     }
 
     function createMonthButtons() {
+      monthButtonsDiv.innerHTML = '';
       const thisYear = new Date().getFullYear();
-      monthNames.forEach((name, i) => {
-        const monthNumber = String(i + 1).padStart(2, '0');
-        const key = `user_points_${thisYear}_${monthNumber}`;
+      
+      // إنشاء أزرار لآخر 12 شهراً (بما في ذلك الشهر الحالي)
+      for (let i = 0; i < 12; i++) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const monthName = monthNames[date.getMonth()];
+        const key = `user_points_${year}_${month}`;
+        
         const btn = document.createElement('button');
         btn.className = 'month-btn';
-        btn.innerText = name;
+        btn.innerText = `${monthName} ${year}`;
+        btn.dataset.key = key;
         btn.onclick = () => loadLeaderboard(key);
+        
+        // تمييز الشهر الحالي
+        if (key === currentKey) {
+          btn.classList.add('active');
+        }
+        
         monthButtonsDiv.appendChild(btn);
-      });
+      }
     }
-
-    createMonthButtons();
 
     function showUserData(name, pointsKey) {
       const modal = document.getElementById('userModal');
@@ -240,28 +201,17 @@
       modal.style.display = 'flex';
     }
 
-    function hideModal() {
-      const modal = document.getElementById('userModal');
-      modal.style.display = 'none';
-    }
+    function hideModal() { document.getElementById('userModal').style.display = 'none'; }
+    function closeModal(event) { if (event.target.id === 'userModal') hideModal(); }
+    function escapeHtml(text) { return String(text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
 
-    function closeModal(event) {
-      if (event.target.id === 'userModal') {
-        hideModal();
-      }
-    }
-
-    function escapeHtml(text) {
-      return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    function deleteUser(name, pointsKey) {
+    async function deleteUser(name, pointsKey) {
       if (confirm(`هل أنت متأكد أنك تريد حذف "${name}"؟`)) {
+        try {
+          await db.collection(pointsKey).doc(name).delete();
+        } catch (e) {
+          console.warn("⚠️ خطأ في حذف المستخدم من Firestore:", e);
+        }
         const allPoints = JSON.parse(localStorage.getItem(pointsKey)) || {};
         delete allPoints[name];
         localStorage.setItem(pointsKey, JSON.stringify(allPoints));
