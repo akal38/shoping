@@ -5,19 +5,109 @@
   <title>المتجر 🛍️</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: 'Cairo', sans-serif; margin: 0; padding: 0; background-color: #fefefe; color: #333; }
-    header { background-color: #e91e63; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-    header h1 { margin: 0; font-size: 1.5em; }
-    .header-buttons button { margin: 5px; padding: 10px 15px; background-color: white; color: #e91e63; border: none; border-radius: 20px; cursor: pointer; font-size: 1em; }
-    .header-buttons button:hover { background-color: #ffe4ec; }
-    .products { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
-    .product-card { width: 280px; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; text-align: center; padding: 15px; }
-    .product-card img { width: 100%; max-height: 180px; object-fit: cover; border-radius: 8px; }
-    .product-card h3 { margin: 10px 0 5px; color: #e91e63; }
-    .product-card p { margin: 5px 0; font-size: 0.95em; }
-    .product-card button { margin-top: 10px; padding: 10px 15px; background-color: #e91e63; color: white; border: none; border-radius: 20px; cursor: pointer; }
-    .product-card button:hover { background-color: #c2185b; }
-    @media (max-width: 600px) { .product-card { width: 90%; } header { flex-direction: column; align-items: flex-start; } }
+    body {
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fefefe;
+      color: #333;
+    }
+
+    header {
+      background-color: #e91e63;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5em;
+    }
+
+    .header-buttons button {
+      margin: 5px;
+      padding: 10px 15px;
+      background-color: white;
+      color: #e91e63;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .header-buttons button:hover {
+      background-color: #ffe4ec;
+    }
+
+    .products {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .product-card {
+      width: 280px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      text-align: center;
+      padding: 15px;
+    }
+
+    .product-card img {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .product-card h3 {
+      margin: 10px 0 5px;
+      color: #e91e63;
+    }
+
+    .product-card p {
+      margin: 5px 0;
+      font-size: 0.95em;
+    }
+
+    .product-card button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      background-color: #e91e63;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .product-card button:hover {
+      background-color: #c2185b;
+    }
+
+    @media (max-width: 600px) {
+      .product-card {
+        width: 90%;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      font-size: 1.2em;
+    }
   </style>
 </head>
 <body>
@@ -32,14 +122,15 @@
   </header>
 
   <div class="products" id="productList">
-    <!-- المنتجات ستُعرض هنا -->
+    <div class="loading">جاري تحميل المنتجات...</div>
   </div>
 
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    // إعداد Firebase
+    // إعدادات Firebase الخاصة بك
     const firebaseConfig = {
       apiKey: "AIzaSyCHbyGbGx7P5mu6h0PecHGInvfX63Wvzqw",
       authDomain: "my-shop-96a73.firebaseapp.com",
@@ -50,54 +141,96 @@
       measurementId: "G-NP5FHDTHEL"
     };
 
+    // تهيئة Firebase
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const database = getDatabase(app);
 
-    const productList = document.getElementById('productList');
-
-    function calculatePoints(price) {
-      return Math.floor(price / 100);
+    // دالة لجلب وعرض المنتجات
+    function loadProducts() {
+      const productList = document.getElementById('productList');
+      const productsRef = ref(database, 'products');
+      
+      onValue(productsRef, (snapshot) => {
+        const products = [];
+        snapshot.forEach((childSnapshot) => {
+          products.push({
+            id: childSnapshot.key,
+            ...childSnapshot.val()
+          });
+        });
+        
+        displayProducts(products);
+      });
     }
 
-    // جلب المنتجات من Firestore
-    async function loadProducts() {
-      const querySnapshot = await getDocs(collection(db, "products"));
-      querySnapshot.forEach((doc) => {
-        const product = doc.data();
+    // دالة لعرض المنتجات
+    function displayProducts(products) {
+      const productList = document.getElementById('productList');
+      
+      if (products.length === 0) {
+        productList.innerHTML = '<div style="text-align:center; width:100%; padding:20px;">لا توجد منتجات متاحة حالياً</div>';
+        return;
+      }
+      
+      productList.innerHTML = '';
+      
+      products.forEach((product, index) => {
         const points = calculatePoints(product.price);
         const card = document.createElement('div');
         card.className = 'product-card';
         card.innerHTML = `
-          <img src="${product.image}" alt="صورة المنتج">
+          <img src="${product.image || 'https://via.placeholder.com/180'}" alt="صورة المنتج">
           <h3>${product.name}</h3>
           <p>السعر: ${product.price} دج</p>
           <p>النقاط المكتسبة: ${points} نقطة</p>
-          <p>${product.desc}</p>
-          <input type="number" id="qty-${doc.id}" min="1" value="1" style="width: 60px; margin-top: 10px; padding: 5px; border-radius: 10px; border: 1px solid #ccc;" />
-          <button onclick="addToCart('${doc.id}', ${product.price}, '${product.name}', '${product.image}', '${product.desc}')">أضف إلى السلة</button>
+          <p>${product.description || ''}</p>
+          <input type="number" id="qty-${index}" min="1" value="1" style="width: 60px; margin-top: 10px; padding: 5px; border-radius: 10px; border: 1px solid #ccc;" />
+          <button onclick="addToCart('${product.id}', ${index})">أضف إلى السلة</button>
         `;
         productList.appendChild(card);
       });
     }
 
-    // إضافة للسلة (تبقى محلية أو ممكن نربطها لاحقًا بفايبريس)
-    window.addToCart = function(id, price, name, image, desc) {
-      const qtyInput = document.getElementById(`qty-${id}`);
-      const quantity = parseInt(qtyInput.value) || 1;
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      for (let i = 0; i < quantity; i++) {
-        cart.push({ id, price, name, image, desc });
-      }
-      localStorage.setItem('cart', JSON.stringify(cart));
-      alert(`تمت إضافة ${quantity} من المنتج إلى السلة ✅`);
+    function calculatePoints(price) {
+      return Math.floor(price / 100);
     }
 
-    // روابط التنقل
-    window.goToCart = () => { window.location.href = "cart.html"; }
-    window.goBack = () => { window.location.href = "index.html"; }
+    // إضافة للسلة
+    window.addToCart = function(productId, index) {
+      const qtyInput = document.getElementById(`qty-${index}`);
+      const quantity = parseInt(qtyInput.value) || 1;
+      
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const productsRef = ref(database, 'products/' + productId);
+      
+      onValue(productsRef, (snapshot) => {
+        const product = snapshot.val();
+        for (let i = 0; i < quantity; i++) {
+          cart.push({
+            ...product,
+            id: productId
+          });
+        }
+        
+        localStorage.setItem('cart', JSON.stringify(cart));
+        alert(`تمت إضافة ${quantity} من المنتج إلى السلة ✅`);
+      }, {
+        onlyOnce: true
+      });
+    }
 
-    loadProducts();
+    // الانتقال للسلة
+    window.goToCart = function() {
+      window.location.href = "cart.html";
+    }
+
+    // الرجوع
+    window.goBack = function() {
+      window.location.href = "index.html";
+    }
+
+    // تحميل المنتجات عند بدء التشغيل
+    window.addEventListener('DOMContentLoaded', loadProducts);
   </script>
-
 </body>
 </html>

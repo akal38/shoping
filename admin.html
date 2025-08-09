@@ -786,29 +786,5 @@
     });
   </script>
 
-
-<!-- Firebase SDKs -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
-
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCHbyGbGx7P5mu6h0PecHGInvfX63Wvzqw",
-  authDomain: "my-shop-96a73.firebaseapp.com",
-  projectId: "my-shop-96a73",
-  storageBucket: "my-shop-96a73.firebasestorage.app",
-  messagingSenderId: "242872774955",
-  appId: "1:242872774955:web:1b281b329bc189ea3e556e",
-  measurementId: "G-NP5FHDTHEL"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
-</script>
-
 </body>
 </html>
